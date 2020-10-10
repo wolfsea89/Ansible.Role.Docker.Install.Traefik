@@ -1,0 +1,26 @@
+localhost:
+  vars:
+    configuration:
+        open_ports:
+          - name: https 
+            internal: 443
+            external: 443
+          - name: http
+            internal: 80
+            external: 80
+            redirection_to: https
+        userslist: true
+    certificates:
+        - name: rachuna.pl
+          crt: << value >>
+          key: << value >>
+    domains:
+      traefik:
+        domain_name: traefik.rachuna.pl
+        certificate_name: "rachuna.pl"
+
+    # when configuration.userslist is true
+      users_in_docker: 
+        - name: administrator
+          docker_services:
+          - traefik

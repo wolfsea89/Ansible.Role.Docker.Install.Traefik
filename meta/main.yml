@@ -1,0 +1,17 @@
+galaxy_info:
+  author: Maciej Rachuna
+  description: Create Traefik in Docker
+  license: license BSD-3-Clause
+  min_ansible_version: 2.9
+  platforms:
+  - name: Ubuntu
+    versions:
+    - 16.04
+    - 18.04
+    - 20.04
+  - name: Centos
+    version:
+    - 7
+    - 8
+  galaxy_tags: [traefik,docker]
+dependencies: []

@@ -1,0 +1,77 @@
+---
+# Create directories
+- name: Create directories for traefik
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ docker.docker_compose_dir }}/traefik"
+    - "{{ docker.docker_volumens_dir }}/traefik"
+    - "{{ docker.docker_volumens_dir }}/traefik/data"
+    - "{{ docker.docker_volumens_dir }}/traefik/data"
+    - "{{ docker.docker_volumens_dir }}/traefik/log"
+    - "{{ docker.docker_volumens_dir }}/traefik/cert"
+
+- name: Copy certificates SSL (crt)
+  template:
+    src: crt.j2
+    dest: "{{ docker.docker_compose_dir }}/traefik/cert/{{ domains.certificate_name }}.crt"
+
+- name: Copy certificates SSL (key)
+  template:
+    src: key.j2
+    dest: "{{ docker.docker_compose_dir }}/traefik/cert/{{ domains.certificate_name }}.key"
+
+# Create traefik configurations
+- name: Create log files
+  file:
+    path: "{{ docker.docker_volumens_dir }}/traefik/log/{{ item }}"
+    mode: "0666"
+    state: touch
+  loop:
+    - access.log
+    - traefik.log
+
+- name: Create configuration for traefik
+  template:
+    src: "{{ item.file }}.j2"
+    dest: "{{ docker.docker_volumens_dir }}/traefik/{{ item.file }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - file: data/traefik.yml
+      mode: "0660"
+    - file: data/userlist
+      mode: "0600"
+
+# Create docker compose coonfiguruation
+- name: Create docker-compose configuration
+  template:
+    src: "docker-compose.yml.j2"
+    dest: "{{ docker.docker_compose_dir }}/traefik/docker-compose.yml"
+    mode: "0666"
+
+# Password
+- name: Create Users
+  include_tasks: create_users/main.yml
+  loop: "{{ users_in_docker }}"
+  loop_control:
+    loop_var: user_in_docker
+  when:
+    - configuration.userslist
+    - users_in_docker is defined
+    
+# Start caontainer
+- name: Create a network
+  docker_network:
+    name: traefik
+    internal: no
+
+- name: Stop container
+  docker_container:
+    name: traefik
+    state: absent
+
+- name: Start the container
+  docker_compose:
+    project_src: "{{ docker.docker_compose_dir }}/traefik"
+  register: traefik_compose_start

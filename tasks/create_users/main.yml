@@ -1,0 +1,9 @@
+- name: "Create user '{{ user_in_docker.name }}'"
+  include_tasks: create_users/create_users.yml
+  loop: "{{ users }}"
+  loop_control:
+    loop_var: user
+  when:
+    - user.username == user_in_docker.name
+    - user_in_docker.docker_services is defined
+    - "'traefik' in user_in_docker.docker_services"

@@ -1,0 +1,60 @@
+global:
+  checkNewVersion: true
+
+api:
+  insecure: false
+  dashboard: true
+  debug: true
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    useBindPortIP: false
+    exposedByDefault: false
+  file:
+    directory: /etc/traefik
+    watch: true
+
+entryPoints:
+{% for open_port in configuration.open_ports %}
+  {{ open_port.name }}:
+    address: ":{{ open_port.external }}"
+{% if open_port.redirection_to is defined %}
+    http:
+      redirections:
+        entryPoint:
+          to: {{ open_port.redirection_to }}
+          scheme: https
+{% endif %}
+{% endfor %}
+
+serversTransport:
+  insecureSkipVerify: false
+
+tls:
+  certificates:
+    - certFile: /etc/ssl/certs/{{ domains.certificate_name }}.crt
+      keyFile: /etc/ssl/certs/{{ domains.certificate_name }}.key
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /etc/ssl/certs/{{ domains.certificate_name }}.crt
+        keyFile: /etc/ssl/certs/{{ domains.certificate_name }}.key
+  options:
+    default:
+      minVersion: VersionTLS12
+      cipherSuites:
+        - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
+        - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
+      sniStrict: false
+
+log:
+  filePath: "/opt/traefik.log"
+
+accessLog:
+  filePath: "/opt/access.log"
+  bufferingSize: 100

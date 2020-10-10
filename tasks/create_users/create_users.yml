@@ -1,0 +1,5 @@
+- name: "Create user '{{ user.username }}'"
+  shell: "htpasswd -mb {{ docker.docker_volumens_dir }}/traefik/data/userlist {{ user.username }} {{ user.default_password }}"
+  when:    
+    - user.state == "present"
+    - "'traefik' in user_in_docker.docker_services"
