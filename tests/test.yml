@@ -1,0 +1,22 @@
+---
+- hosts: localhost
+  remote_user: root
+  roles:
+    - role: Ansible.Role.Docker.Install.Traefik
+      tags: [traefik, docker, install]
+      vars:
+        docker:  
+          docker_compose_dir:     /opt/docker_compose
+          docker_volumens_dir:    /opt/containers
+          docker_certicates_dir:  /etc/ssl/certs
+        # configuration:       <- tests/inventory
+        # certificates:        <- tests/inventory
+        # domain:              <- tests/inventory
+        # users_in_docker:     <- tests/inventory
+        users:  # Recommendation: Defining in group_varss/all
+          - name: Administrator
+            username: administrator
+            default_password: "aaa"
+            state: present
+      when:
+        - "'traefik' in system.docker_services"

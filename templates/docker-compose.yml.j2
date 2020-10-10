@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  traefik:
+    image: traefik:v2.3
+    container_name: traefik
+    restart: unless-stopped
+    networks:
+      - traefik
+    ports:
+{% for open_port in configuration.open_ports %}
+      - {{ open_port.external }}:{{ open_port.internal }}
+{% endfor %}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - {{ docker.docker_volumens_dir }}/traefik/data:/etc/traefik:ro
+      - {{ docker.docker_volumens_dir }}/traefik/data/userlist:/userlist:ro
+      - {{ docker.docker_volumens_dir }}/traefik/log/traefik.log:/opt/traefik.log:rw
+      - {{ docker.docker_volumens_dir }}/traefik/log/access.log:/opt/access.log:rw
+      - {{ docker.docker_volumens_dir }}/traefik/cert/{{ domains.certificate_name }}.crt:/etc/ssl/certs/{{ domains.certificate_name }}.crt:ro
+      - {{ docker.docker_volumens_dir }}/traefik/cert/{{ domains.certificate_name }}.key:/etc/ssl/certs/{{ domains.certificate_name }}.key:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.{{ domains.domain_name | regex_replace('\.', '-') }}.entrypoints=https"
+      - "traefik.http.routers.{{ domains.domain_name | regex_replace('\.', '-') }}.rule=Host(`{{ domains.domain_name }}`)"
+      - "traefik.http.routers.{{ domains.domain_name | regex_replace('\.', '-') }}.tls=true"
+      - "traefik.http.routers.{{ domains.domain_name | regex_replace('\.', '-') }}.service=api@internal"
+      - "traefik.http.services.traefik.loadbalancer.server.port=80"
+{% if userslist is sameas true %}
+      - "traefik.http.routers.{{ domains.domain_name | regex_replace('\.', '-') }}.middlewares={{ domains.domain_name | regex_replace('\.', '-') }}-auth"
+      - "traefik.http.middlewares.{{ domains.domain_name | regex_replace('\.', '-') }}-auth.basicauth.usersfile=/userlist"
+{% endif %}
+
+networks:
+  traefik:
+    external:
+      name: traefik

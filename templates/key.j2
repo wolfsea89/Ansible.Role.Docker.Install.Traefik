@@ -1,0 +1,1 @@
+{% for cert in certificates %}{% if cert.name == domains.certificate_name %}{{ cert.key }}{% endif %}{% endfor %}

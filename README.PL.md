@@ -1,28 +1,28 @@
 Ansible.Role.Docker.Install.Traefik
 =========
 
-Install and configure Traefik
+Rola instalująca i konfigurująca traefik.
 
-Language: [EN](README.md), [PL](README.PL.md)
+Język: [EN](README.md), [PL](README.PL.md)
 
-Dependencies
+Zależnosci
 --------------
-Required package for encrypting user passwords:
+Wymagany pakiet do szyfrowania haseł użytkowników:
 ```
 Install apache2-utils for ubuntu
 Install httpd-tools for centos
 ```
 
-Role Variables
+Zmienne w roli
 --------------
 requires:
 ```
-  docker:           # Docker configuration
-  configuration:    # Traefik configuration
-  domains:          # Domains configuration
-  certificates:     # List certificates
-  users:            # List of all users declared in inventory - Preferred place group_vars / all
-  users_in_docker:  # List of users to be declared on the docker services
+  docker:           # Potrzebna konfiguracja dockera
+  configuration:    # Konfiguracja traefika
+  domains:          # Konfiguracja domen
+  certificates:     # Lista certyfikatów
+  users:            # Lista wszystkich użytkowników zdeklarowanych w inventory - Preferowane miejsce group_vars/all
+  users_in_docker:  # Lista użytkowników do zdeklarowanych na serwisach docker`owych
 ```
 
 example `docker`
@@ -30,7 +30,7 @@ example `docker`
 docker:
   docker_compose_dir: /Data/containers
   docker_volumens_dir: /Data/containers
-docker_certicates_dir:  /etc/ssl/certs
+  docker_certicates_dir:  /etc/ssl/certs
 ```
 example `configuration`
 ```
@@ -56,7 +56,7 @@ example `domains`
 ```
   domains:
     traefik:
-    - name: rachuna.pl
+      - name: rachuna.pl
       certificate_name: rachuna.pl
 ```
 example `users_in_docker`
@@ -75,10 +75,10 @@ example `users`
       state: present
 ```
 
-Example Playbook
+Przykładowy Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+Przykładowy playbbok
 ```
 ---
 - hosts: localhost
@@ -132,7 +132,7 @@ localhost:
 
 ```
 
-Testing
+Testowanie
 ------------
 
 Testing on:
@@ -142,12 +142,12 @@ Testing on:
   - Centos 7
   - Centos 8
 
-License
+Licencja
 -------
 
 BSD
 
-Author Information
+Autor
 ------------------
  **Maciej Rachuna**
 ##### System Administrator & DevOps Engineer
